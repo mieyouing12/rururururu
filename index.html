@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Hybrid FiveM RP Server - Rulebook v2.1 (ライトRP対応版)</title>
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <link rel="stylesheet" href="styles.css?v=dev" data-asset="styles" />
+    <style>
+        .law-table td {
+            word-wrap: break-word;
+            word-break: break-word;
+            padding: 8px;
+            vertical-align: top;
+            line-height: 1.3;
+        }
+
+        .law-table th {
+            font-weight: bold;
+        }
+
+        /* 内容列（2番目の列）だけ文字サイズを小さく */
+        .law-table td:nth-child(2) {
+            font-size: 11px;
+        }
+
+        /* 検索結果ドロップダウン */
+        .search-container {
+            position: relative;
+        }
+
+        .search-results-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-align: center;
+            /* 中央揃え */
+        }
+
+        .search-result-item:hover {
+            background-color: var(--hover-color);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-section {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 4px;
+        }
+
+        .search-result-preview {
+            font-size: 13px;
+            color: var(--text-color);
+            line-height: 1.4;
+        }
+
+        .search-highlight {
+            background-color: #ffd700;
+            font-weight: bold;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .search-result-context {
+            color: var(--text-light);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .no-search-results {
+            padding: 16px;
+            text-align: center;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        /* ヘッダーのレイアウト調整 */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            min-height: 70px;
+            /* 最小高さを設定 */
+        }
+
+        header h1 {
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            justify-content: center;
+            gap: 1rem;
+            margin: 0 2rem;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 600px;
+            /* 最大幅制限 */
+        }
+
+        #search-box {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #search-box:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+            margin-right: 20px;
+            /* スクロールバーとの重複を避ける */
+        }
+
+        .header-buttons button {
+            padding: 10px 15px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* changelog-barの位置調整（CSSファイルで主要設定） */
+
+        /* メインコンテンツの上部余白調整 */
+        .main-content {
+            margin-top: 20px;
+            /* headerからの間隔 */
+        }
+
+        /* contenteditableの青い縁取りを削除 */
+        [contenteditable="true"],
+        [contenteditable="false"],
+        [contenteditable] {
+            outline: none !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* さらに強力な縁取り削除 */
+        *[contenteditable="true"]:focus,
+        *[contenteditable="false"]:focus,
+        *[contenteditable]:focus {
+            outline: none !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* contenteditableの青い縁取りのみを削除 */
+        [contenteditable]:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        /* 全てのアコーディオンヘッダーのスタイル */
+        .accordion-header {
+            cursor: pointer !important;
+            pointer-events: auto !important;
+            user-select: none !important;
+            position: relative !important;
+            background: var(--bg-color) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 8px !important;
+            padding: 15px 20px !important;
+            margin: 10px 0 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+            transition: all 0.3s ease !important;
+            z-index: 100 !important;
+            display: block !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        .accordion-header:hover {
+            background: var(--hover-color) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+        }
+
+
+
+        /* ナビゲーションメニューの位置調整 */
+        .nav-container {
+            margin-top: 20px !important;
+        }
+
+        #table-of-contents {
+            padding-top: 20px;
+        }
+
+        #table-of-contents ul {
+            margin-top: 10px;
+        }
+
+        /* changelog-barのスタイルはstyles.cssで管理 */
+
+        /* キーボードナビゲーション用のハイライト */
+        .search-result-item.keyboard-selected {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .search-result-item.keyboard-selected .search-result-section,
+        .search-result-item.keyboard-selected .search-result-context {
+            color: white;
+        }
+
+        /* レスポンシブデザイン */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+                min-height: auto;
+                /* モバイルでは自動高さ */
+            }
+
+            .header-controls {
+                margin: 0;
+                order: 2;
+            }
+
+            .header-buttons {
+                order: 3;
+                margin-right: 0;
+                /* モバイルでは不要 */
+                justify-content: center;
+                /* 中央配置 */
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+
+
+
+            .search-results-dropdown {
+                left: -10px;
+                right: -10px;
+                max-height: 300px;
+            }
+
+            .search-result-item {
+                padding: 10px 12px;
+            }
+
+            .search-result-section {
+                font-size: 13px;
+            }
+
+            .search-result-preview {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 0.75rem;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            #search-box {
+                padding: 10px 14px;
+                font-size: 14px;
+            }
+
+            .header-buttons button {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+
+        }
+    </style>
+</head>
+
+<body data-theme="light">
+    <header>
+        <h1>📜 Aurora Town Rulebook</h1>
+        <div class="header-controls">
+            <div class="search-container">
+                <input id="search-box" placeholder="ルールを検索..." type="text" />
+                <div id="search-results" class="search-results-dropdown"></div>
+            </div>
+        </div>
+        <div class="header-buttons">
+            <button id="theme-switcher">🌙</button>
+            <button id="admin-button" class="admin-login-btn" title="管理者ログイン">👤</button>
+        </div>
+    </header>
+
+    <div id="admin-toolbar" class="admin-toolbar" hidden>
+        <div class="toolbar-left">
+            <button data-cmd="bold" class="btn">B</button>
+            <button data-cmd="formatBlock" data-value="H3" class="btn">H3</button>
+            <button data-cmd="formatBlock" data-value="H4" class="btn">H4</button>
+            <button data-cmd="createLink" class="btn">リンク</button>
+            <button data-cmd="insertUnorderedList" class="btn">• リスト</button>
+            <button data-cmd="insertOrderedList" class="btn">1. リスト</button>
+            <button data-cmd="removeFormat" class="btn">書式クリア</button>
+            <span class="divider"></span>
+            <button id="insert-table" class="btn">表を挿入</button>
+            <button id="tbl-add-row" class="btn">行追加</button>
+            <button id="tbl-add-col" class="btn">列追加</button>
+            <button id="tbl-merge" class="btn">セル結合</button>
+            <button id="tbl-toggle-head" class="btn">ヘッダー切替</button>
+            <span class="divider"></span>
+            <button id="toggle-edit" class="btn">編集</button>
+            <button id="toggle-preview" class="btn btn-secondary">プレビュー</button>
+            <button id="undo-action" class="btn" title="一つ戻る (Ctrl+Z)">↶ 戻る</button>
+            <button id="redo-action" class="btn" title="一つ進む (Ctrl+Shift+Z / Ctrl+Y)">↷ 進む</button>
+            <button id="save-changes" class="btn btn-primary">保存</button>
+        </div>
+        <div class="toolbar-right">
+            <label class="color-picker-wrap">色 <input type="color" id="color-picker" value="#ff9900" /></label>
+            <button id="manage-tags" class="btn">タグ管理</button>
+            <div class="dropdown">
+                <button id="add-section" class="btn">新しい項目</button>
+                <div class="dropdown-menu" id="section-templates" hidden>
+                    <button data-template="heading-body">見出し＋本文</button>
+                    <button data-template="heading-table">見出し＋表</button>
+                    <button data-template="faq">FAQ形式</button>
+                </div>
+            </div>
+            <button id="export-code" class="btn btn-accent">エクスポート</button>
+            <button id="change-password" class="btn">パスワード変更</button>
+            <button id="logout-admin" class="btn btn-secondary" title="ログアウト">ログアウト</button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="nav-container">
+            <nav id="table-of-contents">
+                <ul>
+                </ul>
+            </nav>
+        </div>
+        <div class="main-content">
+
+            <div id="changelog-bar" class="changelog-bar" aria-live="polite">
+                <div class="changelog-title">最近更新されたルール</div>
+                <div id="changelog-list" class="changelog-list"></div>
+            </div>
+
+            <section class="rule-section" id="s1">
+                <h2 contenteditable="false">１． サーバーの基本理念と心得</h2>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">この街の在り方について</h3>
+                    <p contenteditable="false">この街は、誰もが気軽にロールプレイを楽しめる<strong>『カジュアルロールプレイサーバー』</strong>です。厳格なキャラクター演技を強要するのではなく、プレイヤー一人ひとりが自分らしく、街での生活や交流を楽しむことを最も大切にしています。</p>
+                    <p contenteditable="false">ルールはプレイヤーを縛るものではなく、全員が公平に、そして楽しく物語やゲームをするためのガイドラインです。<br></p>
+                </div>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">全プレイヤーへの心得</h3>
+                    <ul>
+                        <li contenteditable="false"><span style="background-color: rgba(40, 167, 69, 0.1);">✅</span><strong style="color: rgb(77, 171, 247);">楽しむことを最優先に:</strong>&nbsp;ルールは重要ですが、最も大切なのは参加者全員が楽しむことです。時にはルールブックに書かれていないことでも、相手への思いやりを持って行動しましょう。<br><br></li>
+                        <li contenteditable="false"><span style="background-color: rgba(40, 167, 69, 0.1);">✅</span><strong style="color: rgb(77, 171, 247);">リスペクトの精神:</strong>&nbsp;相手も自分と同じ一人の人間です。たとえ敵対する役割（警察と犯罪者など）であっても、相手のプレイヤーへの敬意を忘れないでください。<br><br></li>
+                        <li contenteditable="false"><span style="background-color: rgba(40, 167, 69, 0.1);">✅</span><strong style="color: rgb(77, 171, 247);">RPスタイルの尊重:</strong>&nbsp;他のプレイヤーに対し「ロールプレイができていない」といった批判や、特定のプレイスタイルを強要する行為は禁止です。お互いの楽しみ方を尊重しましょう。<br><br></li>
+                        <li contenteditable="false"><span style="background-color: rgba(220, 53, 69, 0.1);">❌</span><strong style="color: rgb(77, 171, 247);">現実とゲームの混同禁止:</strong>&nbsp;ゲーム内での出来事を現実世界に持ち込んだり、現実世界の情報をゲーム内で有利に利用する（メタゲーミング）行為は固く禁じます。<br><br></li>
+                        <li contenteditable="false"><span style="background-color: rgba(23, 162, 184, 0.1);">💡</span><strong style="color: rgb(77, 171, 247);">録画の推奨:</strong>&nbsp;トラブル防止や、万が一の際の補填申請のために、プレイ中の録画（ボディカメラ）を強く推奨します。<br><br></li>
+                        <li contenteditable="false"><span style="background-color: rgba(23, 162, 184, 0.1);">💡</span><strong style="color: rgb(77, 171, 247);">不明点は確認を:</strong>&nbsp;ルールの解釈に迷った場合、自己判断で行動せず、運営に問い合わせてください。「ルールに書いていないからやってもいい」という考えは認められません。</li>
+                    </ul>
+                </div>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">RP（ロールプレイ）について</h3>
+                    <ul>
+                        <li contenteditable="false"><span style="background-color: rgba(40, 167, 69, 0.1);"></span><strong style="color: rgb(77, 171, 247);">通報義務:</strong>&nbsp;白市民には指名手配や犯罪については通報義務があります。<br><br></li>
+                        <li contenteditable="false"><span style="background-color: rgba(220, 53, 69, 0.1);"></span><strong style="color: rgb(77, 171, 247);">外部情報の持ち込み禁止:</strong>&nbsp;夢（現実世界）、キャラクターの2人目、その他TCRPのサーバー内以外で得た情報をRPに持ち込むことは禁止です。<br><br></li>
+                        <li contenteditable="false"><span style="background-color: rgba(220, 53, 69, 0.1);"></span><strong style="color: rgb(77, 171, 247);">中の人詮索禁止:</strong>&nbsp;他人のキャラクターについて、中の人を詮索する、噂する行為は禁止です。<br><br></li>
+                        <li contenteditable="false"><span style="background-color: rgba(40, 167, 69, 0.1);"></span><strong style="color: rgb(77, 171, 247);">自己責任の原則:</strong>&nbsp;もめごとや賭け事など自分の行った行為については自己責任です。<br><br></li>
+                        <li contenteditable="false"><span style="background-color: rgba(23, 162, 184, 0.1);"></span><strong style="color: rgb(77, 171, 247);">証拠記録の必要性:</strong>&nbsp;システム不具合による補填申請やプレイヤー報告をする場合は、画面録画などのデータ提出が必須となります。提出できない場合は対応できないことがありますので、重要な場面では録画をお勧めします。<br><br></li>
+                    </ul>
+                </div>
+            </section>
+            <section class="rule-section" id="s2">
+                <h2 contenteditable="false">２． 基本ルール (全プレイヤー共通)</h2>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">一般禁止事項</h3>
+                    <div class="rule-important">以下の行為は、発覚した場合、警告なくアカウントの永久利用停止（BAN）を含む厳しい処罰の対象となります。</div>
+                    <ul>
+                        <li contenteditable="false"><strong>チート・不正ツールの使用:</strong> ゲームを有利に進めるための外部ツール、MODの使用する行為。<br>許可されている使用は QuantV , NVE , Reshade ( 過度な色の調節は警告を入れる可能性があります ) だけです。
+                            <ul>
+                                <li contenteditable="false">クロスヘア表示の有効化はチート行為とみなされます。</li>
+                                <li contenteditable="false">No Prop、No Water、Tracer、Bloodfxなどの視認性を変更するMODは一切禁止です。</li>
+                                <li contenteditable="false">銃本体のカラー変更のみ許可されていますが、レーザーサイトなど戦闘に優位性をもたらす変更は禁止です。</li>
+                                <li contenteditable="false">GTAVやFiveMの要素（画質、表現、音声など）に影響を与える外部ツールは、明示的に許可されていない限りすべて禁止です。</li>
+                            </ul>
+                        </li>
+                        <li contenteditable="false"><strong>バグ・グリッチの悪用:</strong> サーバーやゲームの不具合を意図的に利用し、利益を得る行為。見つけた際は速やかに運営に報告してください。<br>グリッチロールや、スピードブーストもここに該当し、当サーバーでの使用は禁止です。</li>
+                        <li contenteditable="false"><strong>RMT (リアルマネートレード):</strong> ゲーム内通貨やアイテムを現実の金銭で取引する行為。</li>
+                        <li contenteditable="false"><strong>アカウント関連:</strong>
+                            <ul>
+                                <li contenteditable="false">18歳未満の利用。</li>
+                                <li contenteditable="false">他者へのアカウントの譲渡、貸与、共有。</li>
+                                <li contenteditable="false">複数アカウントを不正に利用する行為。<br><br></li>
+                            </ul>
+                        </li>
+                        <li contenteditable="false"><strong>サーバーへの攻撃:</strong> DDoS攻撃や、サーバーに過度な負荷をかける行為。</li>
+                        <li contenteditable="false"><b>補填部屋の悪用</b>: 補填部屋から何らかのものを利用する際は補填申請でチェックを受けてからにしてください。</li>
+                        <li contenteditable="false"><b>誹謗中傷や名誉棄損の禁止</b>: サーバー、Discordの参加者、その他関係者への悪口や誹謗中傷を禁止。</li>
+                        <li contenteditable="false"><b>ハラスメントの禁止</b>: 公の場でのセクシャルハラスメント行為、発言は禁止。</li>
+                        <li contenteditable="false"><strong>チート販売ディスコードへの参加禁止:</strong> Fuzzy'sFamily等のチート販売ディスコードへ参加している方は確認次第、永久BANとなります。</li>
+                        <li contenteditable="false"><strong>不正なゲーム設定の変更禁止:</strong> ゲーム内のオプションで変更できる設定以外の部分を自身のゲームファイルや街中以外での設定変更を通して行うことは禁止です。</li>
+                        <li contenteditable="false"><strong>ホワイトリスト登録制限:</strong> Fuzzy'sFamily等のチート販売ディスコードへ参加している方は、ホワイトリストに登録しません。ホワイトリスト登録後、再度そのようなサーバへ参加していることが発覚した場合はBANいたします。</li>
+                    </ul>
+                </div>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">ロールプレイやゲーム上の禁止事項</h3>
+                    <div class="rule-important">以下の行為は、ロールプレイの世界観を著しく損なうため禁止します。違反が確認された場合、処罰の対象となります。</div>
+                    <ul>
+                        <li contenteditable="false"><strong>メタゲーミング :</strong>
+                            <ul>
+                                <li contenteditable="false">ゲーム外（配信、SNS、外部通話など）で得た情報をゲーム内の行動に利用すること。</li>
+                                <li contenteditable="false">配信者の画面を見て得た情報を利用する行為（ゴースティング）や、配信コメントの指示に従う行為。</li>
+                                <li contenteditable="false">キャラクターとして知り得ない情報（プレイヤーID、頭上の名前など）を元に行動すること。</li>
+                                <li contenteditable="false">ゲーム内で「運営」「Discord」「中の人」など、RPを壊す単語を使用すること。（例：「六法で確認します」など）</li>
+                            </ul>
+                        </li>
+                        <li contenteditable="false"><strong>パワープレイ :</strong>
+                            <ul>
+                                <li contenteditable="false">RP中に現実的に起こりえないことをする行為をパワープレイといいます。カジュアルRPなので例にない行為は可能ですが、臨時追加される可能性はあります。これどうなの？という行為についてはお問い合わせください。</li>
+                            </ul>
+                            <h3 contenteditable="false"></h3>
+                            <ul>
+                                <li contenteditable="false">（<font color="#ff0000">ダメ</font>な例）<br>・ダウン中や手錠がかけられている最中にラジオを使う（連打は可能）<br>・エモートを使い銃弾を避ける<br>・ダウン中にエモートで移動するa<br>・Normal 以上の速さで移動できる移動モーションの使用<br>・ゾンビ行為（一度死んだのにもう一度戦場に復活する行為）<br><br>（<font color="#00ff91">OK</font>な例）<br>・車両から降りてこけそうなになった時のスライディングの使用<br></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul>
+                        <ul>
+                        </ul>
+
+                        <li contenteditable="false"><strong>コンバットログ:</strong> 自身に不利な状況（警察からの追跡中、逮捕・拘束中、戦闘中、ダウン直後など）から逃れるために意図的にログアウト、またはリスポーンする行為。</li>
+                        <li contenteditable="false"><strong>RDM / VDM (無差別な殺傷行為):</strong> 明確なRP上の理由なく、無差別にプレイヤーを車両や武器で攻撃・殺傷する行為。</li>
+                        <li contenteditable="false"><strong>ROB の濫用:</strong> 相手の同意や十分なRP上の駆け引きなく、一方的にアイテムを強奪する行為。</li>
+                        <li contenteditable="false"><strong>トローリング / Toxic RP の禁止:</strong> 荒らすことや、他プレイヤーに過度な暴言・暴行を加えることだけを目的とした、物語性のないロールプレイは禁止です。</li>
+                    </ul>
+                </div>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">サーバー管理とメンテナンス</h3>
+                    <ul>
+                        <li contenteditable="false"><strong>定期再起動:</strong> サーバーは毎日12時、17時、5時の3回定期再起動を行います。再起動の約15分前にはゲーム内でお知らせがありますので、重要な行動は避けてください。</li>
+                        <li contenteditable="false"><strong>アカウント管理:</strong> 3か月以上ログインの記録がないキャラクターは、サーバー負荷軽減のため削除される場合があります。定期的にログインすることをお勧めします。</li>
+                        <li contenteditable="false"><strong>車両管理:</strong> 3か月以上回収されていないインパウンド（保管所）の車両は自動的に削除されます。大切な車両は定期的に確認し、放置しないようにしましょう。</li>
+                    </ul>
+                </div>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">キャラクターとコミュニケーション</h3>
+                    <ul>
+                        <li contenteditable="false"><strong>VC (ボイスチャット):</strong> この街で生活する上で、VCの使用は必須です。聞き専での参加は原則として認められません。</li>
+                        <li contenteditable="false"><strong>名前:</strong> 他人が不快に感じる名前や、公序良俗に反する名前の使用は禁止です。キャラクター名は現実的なものにしてください。</li>
+                        <li contenteditable="false"><strong>ハラスメント行為の禁止:</strong> 直接的な暴言だけでなく、相手のロールプレイスキルや人格、声などを否定・揶揄する発言も禁止です。相手が不快に感じた場合はハラスメントと見なされる可能性があります。</li>
+                        <li contenteditable="false"><strong>2キャラ目 (親戚キャラクター):</strong>
+                            <ul>
+                                <li contenteditable="false">1キャラ目と2キャラ目での記憶や資産の共有は一切禁止です。友人や協力者など、第三者を介して実質的に資産を移動させる行為も含まれます。</li>
+                                <li contenteditable="false">片方のキャラクターが指名手配中や服役中に、もう片方のキャラクターでプレイすることは禁止です。</li>
+                                <li contenteditable="false">公務員とギャングなど、利益相反する職業の兼任はできません。</li>
+                            </ul>
+                        </li>
+                        <li contenteditable="false"><strong>ダウン中の会話:</strong> ダウン中は原則として会話を禁止します。ただし、救助を求めるために小声（ウィスパー）で話すことや、警察・救急隊からの呼びかけに応答することは許可されます。無線での状況報告は禁止です。</li>
+                        <li contenteditable="false"><strong>運営への問い合わせ:</strong> ゲーム内で運営スタッフと思われるキャラクターに直接話しかけ、ルール質問やトラブル仲裁を求める行為は禁止です。全ての問い合わせは指定された方法（例：Discordのチケット）で行ってください。</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="rule-section" id="s3">
+                <h2 contenteditable="false">３．市民生活ルール</h2>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">🔰 初心者プレイヤーについて</h3>
+                    <p contenteditable="false">この街に新しく来られた方は、一定期間「🔰初心者マーク」が表示されます。この期間は街に慣れるための大切な時間です。周りの市民は暖かく見守り、助けてあげましょう。</p>
+                    <div class="rule-good">
+                        <strong>🔰マークのプレイヤーに対する保護ルール:</strong>
+                        <ul>
+                            <li contenteditable="false">故意に犯罪行為へ加担させること、犯罪のターゲットにすることを禁止します。</li>
+                            <li contenteditable="false">誘拐、監禁、殺傷、詐欺、ROB（強奪）など、あらゆる敵対的行為を禁止します。</li>
+                            <li contenteditable="false">高額な金銭や物品を一方的に渡す行為も、サーバー経済のバランスを崩すため禁止です。</li>
+                        </ul>
+                    </div>
+                    <div class="rule-important">
+                        <strong>🔰マークのプレイヤー自身の禁止事項:</strong>
+                        <ul>
+                            <li contenteditable="false">🔰マークが付いている状態で、意図的に犯罪行為を行うことを禁止します。</li>
+                            <li contenteditable="false">🔰マークの特権を悪用する行為は処罰の対象となります。</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">セーフゾーン</h3>
+                    <p contenteditable="false">セーフゾーン内では、いかなる理由があっても犯罪行為、暴力行為、プレイヤーキル（PK）は禁止です。</p>
+                    <strong>指定セーフゾーン:</strong>
+                    <ul>
+                        <li contenteditable="false">市役所</li>
+                        <li contenteditable="false">病院の敷地内（駐車場含む）</li>
+                        <li contenteditable="false">各メカニックショップ、カーディーラー</li>
+                        <li contenteditable="false">営業中の飲食店、個人商店</li>
+                        <li contenteditable="false">レギオン広場</li>
+                        <li contenteditable="false">各ジョブの受付地点</li>
+                    </ul>
+                    <div class="rule-important"><strong>セーフゾーンの悪用禁止:</strong> セーフゾーン内からゾーン外のプレイヤーを攻撃したり、追跡されている際にセーフゾーンに逃げ込んでから追跡者を挑発したりする行為は禁止です。</div>
+                </div>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">職業 (Job) と経済活動</h3>
+                    <ul>
+                        <li contenteditable="false"><strong>兼任:</strong> 原則として3つまで職業を兼任できますが、利益相反する組み合わせは禁止です。（例：警察とメカニック、救急隊と個人医など）詳細は各職業ルールを参照してください。</li>
+                        <li contenteditable="false"><strong>職務放棄の禁止:</strong> メカニックが修理を拒否し続けるなど、就いている職業の基本的な役割を放棄する行為は禁止です。</li>
+                        <li contenteditable="false"><strong>汚職の禁止:</strong> 各職業で得られる権限や専用アイテムを不正に利用、横流しする行為は重大な違反とみなします。</li>
+                        <li contenteditable="false"><strong>請求書の扱い:</strong>
+                            <ul>
+                                <li contenteditable="false">各職業でのサービス提供時は、定められた価格、または常識の範囲内の価格で「業務請求」を行ってください。</li>
+                                <li contenteditable="false">正当な理由なく請求書の支払いを1週間以上滞納した場合、警告の上、銀行口座の利用制限などのペナルティが科される可能性があります。</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">PK (プレイヤーキル) について</h3>
+                    <p contenteditable="false">PKはロールプレイにおける最終手段です。行う際には、明確かつ相手に伝わるRP上の理由が必要です。ライトRPサーバーにおいては、PKに至る前に対話での解決を試みることを強く推奨します。</p>
+                    <ul>
+                        <li contenteditable="false">ストーリー性のない無差別PKはRDMとみなし、厳しく罰します。</li>
+                        <li contenteditable="false">PKを行う前には、可能な限り相手に殺意やその理由を伝える努力をしてください。（例：「これ以上の侮辱は許さない」「組織を裏切った報いだ」など）</li>
+                        <li contenteditable="false">報復の連鎖は避けるべきです。一度の抗争や事件で何度も同じ相手を執拗に殺し続ける行為は、粘着行為とみなされる場合があります。</li>
+                        <li contenteditable="false">ワンシーンにつき、PKは原則1回までです。</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="rule-section" id="s4">
+                <h2 contenteditable="false">４．公務員ルール</h2>
+                <div class="accordion-header" contenteditable="false">🚓 警察 (PD) ルール</div>
+                <div class="accordion-content" contenteditable="false" style="padding: 0px 20px;">
+                    <div class="rule-card" contenteditable="false">
+                        <h4 contenteditable="false">基本姿勢</h4>
+                        <p contenteditable="false">警察官は街の秩序と市民の安全を守る最後の砦です。常に公平性、冷静さ、そして市民への奉仕の心を忘れないでください。犯罪者に対しては法を執行する立場ですが、相手も一人のプレイヤーであることを忘れず、敬意を持った対応を心がけてください。</p>
+                        <div class="rule-important"><strong>汚職の絶対禁止:</strong> 押収品の横流し、不当な減刑、犯罪者への情報提供など、いかなる汚職行為も発覚次第、永久BANを含む最も重い処罰の対象となります。賄賂を受け取った側も同様です。</div>
+                        <h4 contenteditable="false">職務規定</h4>
+                        <ul>
+                            <li contenteditable="false"><strong>服装と車両:</strong> 業務中は警察官と明確に識別できる服装を着用し、指定されたパトカーやヘリなどの公務員車両のみを使用してください。自家用車での公務は禁止です。</li>
+                            <li contenteditable="false"><strong>武器の使用:</strong>
+                                <ul>
+                                    <li contenteditable="false">原則として、市民や犯人への声掛け、警告から対応を開始します。</li>
+                                    <li contenteditable="false">テーザーガンの使用は、警告に従わない場合や、抵抗された場合に許可されます。</li>
+                                    <li contenteditable="false">実銃の使用は、自身の生命、または他者の生命に明白な危険が及んでいる場合に限定されます。具体的には、犯人が銃器を発砲した場合や、大型犯罪・指名手配犯への対応時などが該当します。小型犯罪でいきなり発砲することは禁止です。</li>
+                                </ul>
+                            </li>
+                            <li contenteditable="false"><strong>逮捕・拘束:</strong> 逮捕する際は必ず理由を告げてください。職務質問中の安全確保のための一次的な拘束は許可されます。</li>
+                            <li contenteditable="false"><strong>追跡と車両への攻撃:</strong> 逃走車両に対し、意図的に走行不能にするための射撃（タイヤ撃ちなど）は、警告後や大型犯罪などの状況に応じて許可されます。スパイクトラップの使用は原則禁止です。</li>
+                        </ul>
+                        <h4 contenteditable="false">犯罪対応</h4>
+                        <ul>
+                            <li contenteditable="false">投擲物（手榴弾）の総量管理: 警察全体で携行/使用可能な手榴弾はサーバー全体で最大10個まで。個人の所持・使用は1人最大3個まで。万一上限を超えた場合は、速やかな謝罪と相応のロスト対応を行ってください。</li>
+                        </ul>
+                        <ul>
+                            <li contenteditable="false"><strong>現場到着後の対応:</strong> 犯行現場では、まず人質の有無を確認することが最優先です。人質がいないことが確認された場合や、犯人から発砲があった場合は制圧行動に移ります。</li>
+                            <li contenteditable="false"><strong>人数制限:</strong> 各犯罪には対応可能な警察官の人数が定められています。詳細は犯罪ルールを参照してください。</li>
+                            <li contenteditable="false"><strong>シーンへの復帰:</strong> 犯罪対応中にダウンした場合、そのシーン（一連の犯罪事件）へは復帰できません。</li>
+                            <li contenteditable="false"><strong>張り込み:</strong> 薬物関連の現場など、特定の場所での張り込みは許可されますが、市民生活を過度に圧迫しないよう配慮してください。</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="accordion-header" contenteditable="false">🚑 救急隊 (EMS) ルール</div>
+                <div class="accordion-content" contenteditable="false">
+                    <div class="rule-card" contenteditable="false">
+                        <h4 contenteditable="false">基本姿勢</h4>
+                        <p contenteditable="false">救急隊の使命は、所属や立場に関わらず、全ての命を救うことです。警察官、市民、そして犯罪者に対しても、平等かつ献身的な医療を提供してください。</p>
+                        <div class="rule-important"><strong>汚職・情報漏洩の禁止:</strong> 医療品や患者情報を不正に外部へ漏洩・譲渡する行為は禁止です。ただし、警察からの正当な捜査協力要請（銃創の報告など）には応じる義務があります。</div>
+                        <h4 contenteditable="false">職務規定</h4>
+                        <ul>
+                            <li contenteditable="false"><strong>服装と車両:</strong> 業務中は救急隊員と明確に識別できる服装を着用し、救急車両のみを使用してください。</li>
+                            <li contenteditable="false"><strong>中立性の維持:</strong> 犯罪現場では、警察の指示に従い自身の安全を最優先に行動してください。戦闘に巻き込まれないよう、安全が確保されてから救助活動を開始します。</li>
+                            <li contenteditable="false"><strong>蘇生順序:</strong> 複数の負傷者がいる場合、原則として「警察官 → 一般市民 → 犯罪者」の優先順位で対応してください。これは公務の優先性と現場の安全確保のためです。</li>
+                            <li contenteditable="false"><strong>暴力行為の絶対禁止:</strong> いかなる状況でも、救急隊員からの攻撃や反撃は禁止です。危険を感じた場合は速やかに現場を離脱してください。</li>
+                        </ul>
+                        <h4 contenteditable="false">医療行為</h4>
+                        <ul>
+                            <li contenteditable="false"><strong>料金請求:</strong> 治療・蘇生には規定の料金を請求してください。不当な値引きや無料での治療は、汚職とみなされる場合があります。（バグや初心者は例外）</li>
+                            <li contenteditable="false"><strong>銃創の報告義務:</strong> 治療中に銃による傷（銃創）を発見した場合、患者のプライバシーよりも公共の安全が優先されるため、警察に通報する義務があります。</li>
+                            <li contenteditable="false"><strong>指名手配犯への対応:</strong> 指名手配犯から救助要請があった場合、または院内で発見した場合は、警察に通報することが推奨されます。</li>
+                            <li contenteditable="false"><strong>救助要請の重複禁止:</strong> ダウンしたプレイヤーは、救急隊と個人医への要請を同時に行うことを禁止します。現場で両者が遭遇した場合は、患者が最初に要請した側、または公的機関である救急隊が優先されます。</li>
+                            <li contenteditable="false"><strong>横取り行為の禁止:</strong> 既にどちらかが治療を開始している患者を、後から来た方が横取りする行為を禁止します。</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="accordion-header" contenteditable="false">🧑‍⚕️ 個人医 ルール</div>
+                <div class="accordion-content" contenteditable="false">
+                    <div class="rule-card" contenteditable="false">
+                        <h4 contenteditable="false">基本姿勢</h4>
+                        <p contenteditable="false">個人医は、公的な医療機関（EMS）の手が届かない、あるいは届きにくい人々を救う「闇の医療従事者」です。犯罪組織に与することが多くなりますが、あくまでも中立的な医療提供者としての矜持を持ってください。</p>
+                        <div class="rule-info">個人医は犯罪職（黒職）として扱われます。</div>
+                        <h4 contenteditable="false">活動規定</h4>
+                        <ul>
+                            <li contenteditable="false"><strong>料金請求:</strong> 個人医の治療費・蘇生費には下限が設定されています。これを下回る価格でのサービス提供は禁止です。上限はありませんが、法外な請求はトラブルの原因となります。
+                                <ul>
+                                    <li contenteditable="false"><strong>治療:</strong> 最低 80,000円～</li>
+                                    <li contenteditable="false"><strong>蘇生:</strong> 最低 200,000円～</li>
+                                </ul>
+                            </li>
+                            <li contenteditable="false"><strong>犯罪への関与:</strong>
+                                <ul>
+                                    <li contenteditable="false">個人医として活動中（ジョブ遂行中）の武器使用や直接的な攻撃行為は固く禁止します。目的はあくまで救助です。</li>
+                                    <li contenteditable="false">犯罪者のピックアップ（回収）や治療は「逃走補助罪」とみなされる可能性があります。警察からの警告があった場合は速やかに現場を離脱してください。</li>
+                                    <li contenteditable="false">個人医のジョブを外せば、一戦闘員として犯罪に参加することは可能です。ただし、医療品を持ち込むことは禁止です。</li>
+                                </ul>
+                            </li>
+                            <li contenteditable="false"><strong>識別義務:</strong>
+                                <ul>
+                                    <li contenteditable="false">個人医として活動する際は、白を基調とした服装や、車両に「個人医ステッカー」を貼るなど、識別可能な外見を義務付けます。救急隊との誤認を避けるため、EMSの制服着用は禁止です。</li>
+                                    <li contenteditable="false">警察に職務質問された際は、正直に「個人医です」と答える義務があります。</li>
+                                </ul>
+                            </li>
+                            <li contenteditable="false"><strong>蘇生後のルール:</strong> 蘇生した相手には「現場には戻れない」と伝え、一定時間のデバフ（松葉杖など）を付与する義務があります。これによりゾンビ行為を防ぎます。</li>
+                            <li contenteditable="false"><strong>医療行為の優先順位:</strong> 既に救急隊が治療を開始している患者を横取りする行為は禁止です。</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            <section class="rule-section" id="s5">
+                <h2 contenteditable="false">５．犯罪ルール</h2>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">犯罪の心構え</h3>
+                    <p contenteditable="false">犯罪と警察のやり取りは、この街を盛り上げるための大切なロールプレイの一部です。これは敵対行為ではなく、物語を一緒に作る**「ごっこ遊び」**と捉え、過度に殺伐とした雰囲気にならないよう、お互いに配慮し楽しみましょう。</p>
+                    <div class="rule-important"><strong>やる気のない犯罪の禁止:</strong> 警察に捕まること前提の行動や、ギミックを意図的に進めない遅延行為など、他のプレイヤーの時間を浪費させる行為は禁止です。</div>
+                </div>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">犯罪共通ルール</h3>
+                    <div class="accordion-header" contenteditable="false">時間とクールタイム</div>
+                    <div class="accordion-content" contenteditable="false" style="padding: 0px 20px;">
+                        <ul>
+                            <li contenteditable="false"><strong>犯罪可能時間:</strong> 犯罪はサーバーが定める特定の時間帯にのみ実行可能です。（例: 平日19時～翌2時、休日16時～翌3時など）</li>
+                            <li contenteditable="false"><strong>再起動前後の禁止:</strong> サーバー再起動（瞑想）の前後15分間は、全ての犯罪行為（受注含む）が禁止です。</li>
+                            <li contenteditable="false"><strong>犯罪間クールタイム:</strong>
+                                <ul>
+                                    <li contenteditable="false">最低限のクールタイム（例：犯罪グループ全体で30分）は設けますが、それ以上にマナーを重視してください。</li>
+                                    <li contenteditable="false">サーバー全体の犯罪機会を公平にするため、一つのグループが連続して大型犯罪を行うことは控え、他のグループに機会を譲るなどの配慮をお願いします。</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="accordion-header" contenteditable="false">参加人数と服装</div>
+                    <div class="accordion-content" contenteditable="false">
+                        <ul>
+                            <li contenteditable="false"><strong>参加人数:</strong> 各犯罪には参加人数の上限が定められています。原則として、犯罪開始時の警察出勤人数の8割、または犯罪ごとの上限人数のうち、少ない方が適用されます。見張りや逃走補助も人数に含まれます。</li>
+                            <li contenteditable="false"><strong>服装・車両の統一:</strong> チームで犯罪を行う際は、所属を示すために服装と車両の色を統一することが義務付けられます。これにより、警察や他の犯罪グループとの識別を明確にします。</li>
+                        </ul>
+                    </div>
+                    <div class="accordion-header" contenteditable="false">戦闘と逃走</div>
+                    <div class="accordion-content" contenteditable="false">
+                        <ul>
+                            <li contenteditable="false"><strong>VCの使用:</strong> 犯罪行為中は、交渉や情報共有のためにVCを使用できる状態であることが必須です。</li>
+                            <li contenteditable="false"><strong>ドライブバイの禁止:</strong> 車両の運転席・助手席からの発砲（ドライブバイ）は、サーバーの安定性と公平性のため、全ての車両で禁止します。</li>
+                            <li contenteditable="false"><strong>立てこもりについて:</strong> 特に何時間まで。というルールは設けませんが、できるだけ短い時間で犯罪は終われるようにすることを心がけてください。</li>
+                            <li contenteditable="false"><strong>「追跡中」の定義:</strong> 以下のいずれかの状況にある場合、警察による「追跡中」とみなされます。
+                                <ul>
+                                    <li contenteditable="false">警察車両のサイレンが聞こえる範囲にいる。</li>
+                                    <li contenteditable="false">警察官または警察車両が自身の視界に映っている。</li>
+                                    <li contenteditable="false">警察のヘリコプターが上空を旋回しているのが認識できる。</li>
+                                </ul>
+                            </li>
+                            <li contenteditable="false"><strong>「追跡からの離脱」とアジトへの逃げ込み:</strong> 「追跡中」の状況が連続して3分以上発生しなかった場合、「追跡から離脱した（振り切った）」とみなすことができ、アジトや自宅への逃げ込みが許可されます。これを満たさず逃げ込んだ場合はルール違反となります。</li>
+                            <li contenteditable="false"><strong>ゾンビ行為の禁止:</strong> ダウン後に蘇生されて、同じ犯罪シーンに復帰する行為は「ゾンビ行為」として固く禁止します。</li>
+                            <li contenteditable="false"><strong>車両関連の禁止事項:</strong> 犯罪シーン中の車両修理、および押収を免れるための意図的な車両破壊は禁止です。</li>
+                        </ul>
+                    </div>
+                    <div class="accordion-header" contenteditable="false">人質に関するルール</div>
+                    <div class="accordion-content" contenteditable="false">
+                        <ul>
+                            <li contenteditable="false"><strong>人質の扱い:</strong> 人質を取る際は、武器を構えて脅すなど、ロールプレイを重視してください。人質を犯罪に加担させることはできません。</li>
+                            <li contenteditable="false"><strong>解放条件:</strong> 警察に対し、解放条件を1つ要求できます（例：「ヘリのアタックを3分禁止」など）。警察側は、その要求が不適切と判断した場合、拒否することができます。金銭や仲間の解放といった要求はできません。</li>
+                            <li contenteditable="false"><strong>身内の人質禁止:</strong> 同じ犯罪グループの仲間を人質に取ることは禁止です。</li>
+                            <li contenteditable="false"><strong>人質の権利:</strong>
+                                <ul>
+                                    <li contenteditable="false"><strong>自決権:</strong> 人質に取られたプレイヤーは、RP上、自らリスポーンする権利（/helpなど）を有します。犯罪者がこれを脅迫によって妨げる行為はパワーゲーミングとみなし禁止します。</li>
+                                    <li contenteditable="false"><strong>不当な要求の禁止:</strong> 人質に対し、視認しづらい服装に着替えるよう要求するなど、円滑なRP進行を妨げる行為を禁止します。</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="accordion-header" contenteditable="false">歪み（バグ）発生時の対処法</div>
+                    <div class="accordion-content" contenteditable="false">
+                        <ul>
+                            <li contenteditable="false"><strong>無敵状態になった場合:</strong> 自身が無敵になったと気づいたプレイヤーは、直ちに攻撃を中止し、その場で状況を申告する義務があります。この状況を利用して戦闘を継続する行為は重大なバグ利用とみなします。相手が無敵と判断した場合も同様に、攻撃を中止し協議してください。</li>
+                            <li contenteditable="false"><strong>マップ外・壁の中に転移した場合:</strong> 直ちに警察に無線や電話で状況を報告してください。報告なくその状況を利用して逃走した場合、バグ利用とみなされます。報告があった場合、警察はシーンを中止し、逮捕せずに解散とします。（犯罪で得た報酬は返却）</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">犯罪区分別ルール</h3>
+                    <div class="card" contenteditable="false">
+                        <h4 contenteditable="false">小型（個別ルール・警察対応人数）</h4>
+                        <table contenteditable="false" class="law-table" style="width: 100%; table-layout: fixed;">
+                            <thead>
+                                <tr>
+                                    <th contenteditable="false" style="width: 20%; word-wrap: break-word; padding: 8px;">犯罪名</th>
+                                    <th contenteditable="false" style="width: 35%; word-wrap: break-word; padding: 8px;">犯罪側ルール（要点）</th>
+                                    <th contenteditable="false" style="width: 22.5%; word-wrap: break-word; padding: 8px;">犯罪側手榴弾上限</th>
+                                    <th contenteditable="false" style="width: 22.5%; word-wrap: break-word; padding: 8px;">警察対応人数（最大）</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td contenteditable="false">コンビニ強盗罪</td>
+                                    <td contenteditable="false">人質RP推奨。店外での待ち伏せ禁止。逃走車は1台まで。</td>
+                                    <td contenteditable="false">0</td>
+                                    <td contenteditable="false">4</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">空き巣</td>
+                                    <td contenteditable="false">発砲は最小限。住民RPを尊重。</td>
+                                    <td contenteditable="false">0</td>
+                                    <td contenteditable="false">3</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">フリーカ銀行強盗罪</td>
+                                    <td contenteditable="false">人質1名まで。店内に爆薬は使用可。</td>
+                                    <td contenteditable="false">0</td>
+                                    <td contenteditable="false">6</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">宝石店強盗</td>
+                                    <td contenteditable="false">ショーケース破壊時は周囲安全確認。</td>
+                                    <td contenteditable="false">0</td>
+                                    <td contenteditable="false">6</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">ブースティングB以下</td>
+                                    <td contenteditable="false">公道での無差別体当たり禁止。回収車は1台。</td>
+                                    <td contenteditable="false">0</td>
+                                    <td contenteditable="false">4</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card" contenteditable="false">
+                        <h4 contenteditable="false">中型（個別ルール・警察対応人数）</h4>
+                        <table contenteditable="false" class="law-table" style="width: 100%; table-layout: fixed;">
+                            <thead>
+                                <tr>
+                                    <th contenteditable="false" style="width: 20%; word-wrap: break-word; padding: 8px;">犯罪名</th>
+                                    <th contenteditable="false" style="width: 35%; word-wrap: break-word; padding: 8px;">犯罪側ルール（要点）</th>
+                                    <th contenteditable="false" style="width: 22.5%; word-wrap: break-word; padding: 8px;">犯罪側手榴弾上限</th>
+                                    <th contenteditable="false" style="width: 22.5%; word-wrap: break-word; padding: 8px;">警察対応人数（最大）</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td contenteditable="false">サーマルミッション</td>
+                                    <td contenteditable="false">ミッション地点への一般車巻き込み禁止。</td>
+                                    <td contenteditable="false">1/人・合計2まで</td>
+                                    <td contenteditable="false">8</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">パレト銀行強盗罪</td>
+                                    <td contenteditable="false">交渉10分以内を目安。人質最大2。</td>
+                                    <td contenteditable="false">1/人・合計2まで</td>
+                                    <td contenteditable="false">8</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">飛行機墜落ミッション</td>
+                                    <td contenteditable="false">現場封鎖RPを尊重。爆薬は現場のみ。</td>
+                                    <td contenteditable="false">1/人・合計2まで</td>
+                                    <td contenteditable="false">8</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">ブースティングA以上</td>
+                                    <td contenteditable="false">スパイク・バリケードはPDのみ可。</td>
+                                    <td contenteditable="false">0</td>
+                                    <td contenteditable="false">8</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">金庫強盗</td>
+                                    <td contenteditable="false">フロア制圧は最小限。</td>
+                                    <td contenteditable="false">1/人・合計2まで</td>
+                                    <td contenteditable="false">8</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card" contenteditable="false">
+                        <h4 contenteditable="false">大型（個別ルール・警察対応人数）</h4>
+                        <table contenteditable="false" class="law-table" style="width: 100%; table-layout: fixed;">
+                            <thead>
+                                <tr>
+                                    <th contenteditable="false" style="width: 20%; word-wrap: break-word; padding: 8px;">犯罪名</th>
+                                    <th contenteditable="false" style="width: 35%; word-wrap: break-word; padding: 8px;">犯罪側ルール（要点）</th>
+                                    <th contenteditable="false" style="width: 22.5%; word-wrap: break-word; padding: 8px;">犯罪側手榴弾上限</th>
+                                    <th contenteditable="false" style="width: 22.5%; word-wrap: break-word; padding: 8px;">警察対応人数（最大）</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td contenteditable="false">BOBCAT強盗</td>
+                                    <td contenteditable="false">C4使用可。民間区域への流れ弾に注意。</td>
+                                    <td contenteditable="false">1/人・合計3まで</td>
+                                    <td contenteditable="false">10</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">オイルリグ強盗</td>
+                                    <td contenteditable="false">海上では航行安全最優先。</td>
+                                    <td contenteditable="false">1/人・合計3まで</td>
+                                    <td contenteditable="false">12</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">飛行場襲撃ミッション</td>
+                                    <td contenteditable="false">滑走路上の一般機体への被害防止。</td>
+                                    <td contenteditable="false">1/人・合計3まで</td>
+                                    <td contenteditable="false">12</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">豪華客船強盗罪</td>
+                                    <td contenteditable="false">乗員・乗客の安全RPを最優先。</td>
+                                    <td contenteditable="false">1/人・合計3まで</td>
+                                    <td contenteditable="false">12</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">アーティファクトヘイスト</td>
+                                    <td contenteditable="false">遺物の損壊RPは控える。</td>
+                                    <td contenteditable="false">1/人・合計3まで</td>
+                                    <td contenteditable="false">12</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card" contenteditable="false">
+                        <h4 contenteditable="false">超大型（個別ルール・警察対応人数）</h4>
+                        <table contenteditable="false" class="law-table" style="width: 100%; table-layout: fixed;">
+                            <thead>
+                                <tr>
+                                    <th contenteditable="false" style="width: 20%; word-wrap: break-word; padding: 8px;">犯罪名</th>
+                                    <th contenteditable="false" style="width: 35%; word-wrap: break-word; padding: 8px;">犯罪側ルール（要点）</th>
+                                    <th contenteditable="false" style="width: 22.5%; word-wrap: break-word; padding: 8px;">犯罪側手榴弾上限</th>
+                                    <th contenteditable="false" style="width: 22.5%; word-wrap: break-word; padding: 8px;">警察対応人数（最大）</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td contenteditable="false">パシフィック銀行強盗罪</td>
+                                    <td contenteditable="false">広域封鎖RP。交渉は合理的に。</td>
+                                    <td contenteditable="false">2/人・合計6まで</td>
+                                    <td contenteditable="false">14</td>
+                                </tr>
+                                <tr>
+                                    <td contenteditable="false">カジノ強盗</td>
+                                    <td contenteditable="false">内部は民間エリア。無差別射撃禁止。</td>
+                                    <td contenteditable="false">2/人・合計6まで</td>
+                                    <td contenteditable="false">16</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p contenteditable="false">犯罪は規模に応じて「小型」「中型」「準大型」「大型」に分類されます。規模が大きいほど、高い報酬とリスク、そして厳しいルールが伴います。</p>
+                    <div class="accordion-header" contenteditable="false">💊 薬物関連 (特殊)</div>
+                    <div class="accordion-content" contenteditable="false">
+                        <ul>
+                            <li contenteditable="false"><strong>概要:</strong> 薬物の精製と販売は、他の犯罪とは異なる特殊なルールが適用されます。</li>
+                            <li contenteditable="false"><strong>警察の対応:</strong> 警察は薬物関連の現場（精製所、売人周辺）へのパトロールや張り込みが許可されています。</li>
+                            <li contenteditable="false"><strong>逃走:</strong> 警察に追われていない限り、建物への逃げ込みや車両をしまう行為は許可されます。追跡が開始された時点で、10分間の逃走ルールが適用されます。</li>
+                        </ul>
+                    </div>
+                    <div class="accordion-header" contenteditable="false">🏪 小型犯罪 (コンビニ、ATM、フリーカ銀行など)</div>
+                    <div class="accordion-content" contenteditable="false">
+                        <ul>
+                            <li contenteditable="false"><strong>概要:</strong> 比較的少人数、短時間で実行可能な犯罪です。街の雰囲気を学ぶ初心者にも推奨されます。</li>
+                            <li contenteditable="false"><strong>参加人数:</strong> 1～4人程度。</li>
+                        </ul>
+                    </div>
+                    <div class="accordion-header" contenteditable="false">🚢 中型犯罪 (ボブキャット、客船、コンテナなど)</div>
+                    <div class="accordion-content" contenteditable="false">
+                        <ul>
+                            <li contenteditable="false"><strong>概要:</strong> 組織的な計画と実行が求められる犯罪。銃撃戦が発生する可能性が高まります。</li>
+                            <li contenteditable="false"><strong>参加人数:</strong> 4～8人程度。</li>
+                            <li contenteditable="false"><strong>ルール:</strong>
+                                <ul>
+                                    <li contenteditable="false">銃撃戦が許可されます。</li>
+                                    <li contenteditable="false">犯罪によって、ヘリコプターの使用が限定的に許可される場合があります（例：1機まで）。</li>
+                                    <li contenteditable="false">防弾車両の使用は原則禁止です。</li>
+                                    <li contenteditable="false">「追跡からの離脱」が確認できた後、アジトへの逃げ込みが許可されます。</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="accordion-header" contenteditable="false">✈️ 大型・準大型犯罪 (ユニオン、パシフィック、飛行場など)</div>
+                    <div class="accordion-content" contenteditable="false">
+                        <ul>
+                            <li contenteditable="false"><strong>概要:</strong> サーバー内で最も大規模で困難な犯罪。参加には十分な準備と覚悟が必要です。ギャングなどの大規模組織による実行が想定されています。</li>
+                            <li contenteditable="false"><strong>参加人数:</strong> 5～15人以上。</li>
+
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            <section class="rule-section" id="s6">
+                <h2 contenteditable="false">６．組織・ギャングルール</h2>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">ギャングの定義と設立</h3>
+                    <ul>
+                        <li contenteditable="false"><strong>定義:</strong> 犯罪行為を生業とし、街で一定の影響力を持つと運営に認められた集団を指します。</li>
+                        <li contenteditable="false"><strong>設立条件:</strong>
+                            <ul>
+                                <li contenteditable="false">最低メンバー数: 6人以上（最大20人まで）</li>
+                                <li contenteditable="false">設立資金: サーバー経済に応じた一定額が必要。</li>
+                                <li contenteditable="false">申請と面談: 運営への申請と、ボス・アンダーボスの面談が必要です。</li>
+                            </ul>
+                        </li>
+                        <li contenteditable="false"><strong>カラーと服装:</strong>白は原則使用不可です。黒・灰は使用可能です（ただし全身真っ黒など識別困難な装いは不可）。</li>
+                    </ul>
+                </div>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">ギャング活動</h3>
+                    <p contenteditable="false">ギャング活動中は、定められたギャングカラーの服装と車両を使用することが義務付けられます。</p>
+                    <div class="accordion-header" contenteditable="false">シマ取り (抗争)</div>
+                    <div class="accordion-content" contenteditable="false">
+                        <ul>
+                            <li contenteditable="false"><strong>概要:</strong> 薬物の売買やスプレーによる縄張り争い。サーバーが定めた特定の曜日・時間帯にのみ開催されます。</li>
+                            <li contenteditable="false"><strong>戦闘:</strong> シマ取り時間内、および指定エリア内での戦闘は許可されます。</li>
+                            <li contenteditable="false"><strong>ルール:</strong>
+                                <ul>
+                                    <li contenteditable="false">ダウン後は“松葉杖”デバフが解除されるまで再参戦不可です。</li>
+                                    <li contenteditable="false">個人医への攻撃は禁止です。</li>
+                                    <li contenteditable="false">一般市民を巻き込んだ場合は、治療費の負担など誠意ある対応が求められます。</li>
+
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="accordion-header" contenteditable="false">大型犯罪の横取り</div>
+                    <div class="accordion-content" contenteditable="false">
+                        <ul>
+                            <li contenteditable="false"><strong>概要:</strong> 他のギャングが実行中の特定の大型犯罪に介入し、報酬を強奪する行為。</li>
+                            <li contenteditable="false"><strong>ルール:</strong>
+                                <ul>
+                                    <li contenteditable="false">横取りが許可されている犯罪は限定されています。</li>
+                                    <li contenteditable="false">介入できるのは1ギャングにつき3人までなど、人数に制限があります。</li>
+                                    <li contenteditable="false">横取り行為は高いリスクを伴い、失敗した場合は強盗罪の共犯として扱われます。</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="accordion-header" contenteditable="false">抗争 (War)</div>
+                    <div class="accordion-content" contenteditable="false">
+                        <ul>
+                            <li contenteditable="false"><strong>概要:</strong> ギャング間の問題が話し合いで解決しない場合の最終手段。事前に双方の合意と運営への申請が必要です。</li>
+                            <li contenteditable="false"><strong>ルール:</strong> 日時、場所、勝利条件などのルールは当事者間で自由に設定できますが、運営の承認が必要です。一般市民を巻き込まないよう最大限配慮することが求められます。</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="rule-card" contenteditable="false">
+                    <h3 contenteditable="false">ギャングの責任と解散</h3>
+                    <ul>
+                        <li contenteditable="false"><strong>連帯責任:</strong> ギャングメンバーがルール違反を犯した場合、ボスやギャング全体が連帯責任を負います。</li>
+                        <li contenteditable="false"><strong>解散条件:</strong>
+                            <ul>
+                                <li contenteditable="false">重大なルール違反が繰り返された場合。</li>
+                                <li contenteditable="false">メンバー数が長期間、最低維持人数を下回った場合。</li>
+                                <li contenteditable="false">ボスからの解散申告があった場合。</li>
+                                <li contenteditable="false">運営がギャングとしての活動実態がないと判断した場合。</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <h3 contenteditable="false">横取り（ハイジャック）</h3>
+                <div>
+                    <ul>
+                        <li contenteditable="false">対象: 中型以上の犯罪（ブースティングを除く）のみ横取り可能。</li>
+                        <li contenteditable="false">資格: 横取りはギャング（組織）のみ可能。ソロ・一般市民は不可。</li>
+                        <li contenteditable="false">介入タイミング: 指定なし。常識的なRPと安全配慮に従うこと。</li>
+                    </ul>
+                </div>
+            </section>
+            <section class="rule-section" id="s7">
+                <h2 contenteditable="false">７．法律・刑罰一覧</h2>
+                <div class="rule-card" contenteditable="false">
+
+
+                    <h4 contenteditable="false">犯罪別刑罰表</h4>
+                    <table contenteditable="false" class="law-table" style="width: 100%; table-layout: fixed;">
+                        <thead>
+                            <tr>
+                                <th contenteditable="false" style="width: 20%; word-wrap: break-word; padding: 8px;">罪状</th>
+                                <th contenteditable="false" style="width: 35%; word-wrap: break-word; padding: 8px;">内容</th>
+                                <th contenteditable="false" style="width: 22.5%; word-wrap: break-word; padding: 8px;">罰金</th>
+                                <th contenteditable="false" style="width: 22.5%; word-wrap: break-word; padding: 8px;">服役時間</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td contenteditable="false">プレイヤー殺人罪</td>
+                                <td contenteditable="false">プレイヤーの殺害</td>
+                                <td contenteditable="false">¥500,000</td>
+                                <td contenteditable="false">10分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">プレイヤー殺人未遂罪</td>
+                                <td contenteditable="false">プレイヤーの殺害未遂（事件中や職質など警察と対峙した際に手を後ろに回す行為が確認された時点で殺人未遂が成立する）</td>
+                                <td contenteditable="false">¥250,000</td>
+                                <td contenteditable="false">5分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">NPC殺人罪</td>
+                                <td contenteditable="false">NPCの殺害</td>
+                                <td contenteditable="false">¥50,000</td>
+                                <td contenteditable="false">5分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">NPC殺人未遂罪</td>
+                                <td contenteditable="false">NPCの殺害未遂</td>
+                                <td contenteditable="false">¥30,000</td>
+                                <td contenteditable="false">5分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">銃刀法違反</td>
+                                <td contenteditable="false">ガンライセンス不所持の際の銃器、鈍器、刃物の所持 ※武器ライセンスのはく奪条件は「犯罪時に武器を持っていた時点」となります。はく奪が決定しても、その時点では銃刀法違反はつきません。ライセンスがはく奪され、次に逮捕された時点で銃刀法違反がつきます。</td>
+                                <td contenteditable="false">¥100,000</td>
+                                <td contenteditable="false">なし</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">犯罪道具所持罪</td>
+                                <td contenteditable="false">犯罪に使用される道具の所持</td>
+                                <td contenteditable="false">なし</td>
+                                <td contenteditable="false">なし</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">花所持罪</td>
+                                <td contenteditable="false">薬物生成の原料となる花を所持していた場合は押収</td>
+                                <td contenteditable="false">なし</td>
+                                <td contenteditable="false">なし</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">薬物所持罪</td>
+                                <td contenteditable="false">違法薬物の所持および販売</td>
+                                <td contenteditable="false">違法薬物1つ¥100,000×所持数</td>
+                                <td contenteditable="false">10分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">薬物販売罪</td>
+                                <td contenteditable="false">薬物の販売</td>
+                                <td contenteditable="false">¥2,000,000</td>
+                                <td contenteditable="false">10分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">薬物生成罪</td>
+                                <td contenteditable="false">違法薬物の生成</td>
+                                <td contenteditable="false">¥2,000,000</td>
+                                <td contenteditable="false">10分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">逃走補助罪（個人医のみ適用）</td>
+                                <td contenteditable="false">犯罪者の逃走を助ける行為（個人医として助けに行った際は逃走補助のみつきます）</td>
+                                <td contenteditable="false">¥2,000,000</td>
+                                <td contenteditable="false">15分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">窃盗/窃盗未遂罪</td>
+                                <td contenteditable="false">物品を盗む、盗もうとした行為</td>
+                                <td contenteditable="false">¥70,000</td>
+                                <td contenteditable="false">5分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">公務執行妨害</td>
+                                <td contenteditable="false">警察の業務を妨害する行為</td>
+                                <td contenteditable="false">¥100,000</td>
+                                <td contenteditable="false">5分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">暴行罪</td>
+                                <td contenteditable="false">プレイヤーに暴行をする行為</td>
+                                <td contenteditable="false">¥50,000</td>
+                                <td contenteditable="false">5分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">NPC拉致/監禁罪</td>
+                                <td contenteditable="false">NPCを拉致/監禁する行為</td>
+                                <td contenteditable="false">¥100,000</td>
+                                <td contenteditable="false">5分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">プレイヤー拉致/監禁罪</td>
+                                <td contenteditable="false">プレイヤーを拉致/監禁する行為</td>
+                                <td contenteditable="false">¥100,000</td>
+                                <td contenteditable="false">5分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">セクハラ罪</td>
+                                <td contenteditable="false">プレイヤーにセクシュアルハラスメントをする行為</td>
+                                <td contenteditable="false">¥50,000～¥200,000</td>
+                                <td contenteditable="false">被害者の裁量（0～10分の間）※重複します。</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">侮辱罪</td>
+                                <td contenteditable="false">プレイヤーに対する侮辱的な行為</td>
+                                <td contenteditable="false">¥50,000～¥200,000</td>
+                                <td contenteditable="false">被害者の裁量（0～10分の間） ※重複します。</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">詐欺罪</td>
+                                <td contenteditable="false">プレイヤーに対する詐欺を働く行為</td>
+                                <td contenteditable="false">¥5,000,000</td>
+                                <td contenteditable="false">被害者の裁量（0～10分の間）</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">なりすまし罪</td>
+                                <td contenteditable="false">他人に成りすます行為</td>
+                                <td contenteditable="false">¥10,000,000</td>
+                                <td contenteditable="false">15分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">コンビニ強盗罪</td>
+                                <td contenteditable="false">コンビニを襲う行為</td>
+                                <td contenteditable="false">¥300,000</td>
+                                <td contenteditable="false">5分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">家強盗罪</td>
+                                <td contenteditable="false">家を襲う行為</td>
+                                <td contenteditable="false">¥150,000</td>
+                                <td contenteditable="false">5分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">ATM強盗罪</td>
+                                <td contenteditable="false">ATMを襲う行為</td>
+                                <td contenteditable="false">¥350,000</td>
+                                <td contenteditable="false">5分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">ブースティング罪（B,C,D）</td>
+                                <td contenteditable="false">車両を違法に輸送する行為</td>
+                                <td contenteditable="false">¥1,500,000</td>
+                                <td contenteditable="false">5分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">ブースティング罪（S,A）</td>
+                                <td contenteditable="false">車両を違法に輸送する行為</td>
+                                <td contenteditable="false">¥5,000,000</td>
+                                <td contenteditable="false">20分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">銀行強盗罪</td>
+                                <td contenteditable="false">銀行を襲う行為</td>
+                                <td contenteditable="false">¥1,900,000</td>
+                                <td contenteditable="false">15分</td>
+                            </tr>
+
+                            <tr>
+                                <td contenteditable="false">宝石強盗罪</td>
+                                <td contenteditable="false">宝石店を襲う行為</td>
+                                <td contenteditable="false">¥2,100,000</td>
+                                <td contenteditable="false">20分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">金庫強盗罪（保留）</td>
+                                <td contenteditable="false">大型の金庫を車で運びだす行為</td>
+                                <td contenteditable="false">未定</td>
+                                <td contenteditable="false">20分</td>
+                            </tr>
+
+
+
+
+                            <tr>
+                                <td contenteditable="false">ボブキャット襲撃罪</td>
+                                <td contenteditable="false">ボブキャットを襲う行為</td>
+                                <td contenteditable="false">¥1,000,000</td>
+                                <td contenteditable="false">25分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">客船強盗罪</td>
+                                <td contenteditable="false">客船を襲う行為</td>
+                                <td contenteditable="false">¥20,000,000</td>
+                                <td contenteditable="false">25分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">パレト銀行強盗罪</td>
+                                <td contenteditable="false">パレト銀行を襲う行為</td>
+                                <td contenteditable="false">¥23,000,000</td>
+                                <td contenteditable="false">25分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">ユニオン強盗罪</td>
+                                <td contenteditable="false">ユニオン銀行を襲う行為</td>
+                                <td contenteditable="false">¥36,000,000</td>
+                                <td contenteditable="false">30分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">パシフィック銀行強盗罪</td>
+                                <td contenteditable="false">パシフィック銀行を襲う行為</td>
+                                <td contenteditable="false">¥50,000,000</td>
+                                <td contenteditable="false">30分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">飛行場襲撃罪</td>
+                                <td contenteditable="false">飛行場を襲う行為</td>
+                                <td contenteditable="false">¥20,000,000</td>
+                                <td contenteditable="false">30分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">オイルリグ強盗罪</td>
+                                <td contenteditable="false">オイルリグを襲う行為</td>
+                                <td contenteditable="false">¥16,000,000</td>
+                                <td contenteditable="false">30分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">アーティファクト強盗罪</td>
+                                <td contenteditable="false">アーティファクトを保管している倉庫を襲う行為</td>
+                                <td contenteditable="false">¥31,200,000</td>
+                                <td contenteditable="false">30分</td>
+                            </tr>
+
+                            <tr>
+                                <td contenteditable="false">カジノ強盗罪</td>
+                                <td contenteditable="false">カジノを襲う行為</td>
+                                <td contenteditable="false">¥50,000,000</td>
+                                <td contenteditable="false">30分</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">警察署襲撃罪</td>
+                                <td contenteditable="false">警察署を襲う行為</td>
+                                <td contenteditable="false">¥150,000,000</td>
+                                <td contenteditable="false">60分（重複）</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">自販機強盗罪</td>
+                                <td contenteditable="false">街の自動販売機から金品を盗む行為</td>
+                                <td contenteditable="false">¥100,000</td>
+                                <td contenteditable="false">なし</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="rule-info" contenteditable="false">
+                        <strong>重要な注意事項（刑期について）</strong>
+                        <ul>
+                            <li>※服役時間は最長60分までです。</li>
+                            <li>例）プレイヤー殺人と薬物所持/販売を行った場合、45分+20分＝65分ではなく最長刑期の60分になります。</li>
+                            <li>ただし、「重複」と記載されている罪状については60分を超過して計算し、刑期とします。</li>
+                        </ul>
+                    </div>
+
+                    <h4 contenteditable="false">その他の処分・制裁</h4>
+                    <table contenteditable="false" class="law-table" style="width: 100%; table-layout: fixed;">
+                        <thead>
+                            <tr>
+                                <th contenteditable="false" style="width: 20%; word-wrap: break-word; padding: 8px;">区分</th>
+                                <th contenteditable="false" style="width: 15%; word-wrap: break-word; padding: 8px;">時間</th>
+                                <th contenteditable="false" style="width: 20%; word-wrap: break-word; padding: 8px;">料金</th>
+                                <th contenteditable="false" style="width: 45%; word-wrap: break-word; padding: 8px;">内容</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td contenteditable="false">インパウンド</td>
+                                <td contenteditable="false">1時間</td>
+                                <td contenteditable="false">100,000</td>
+                                <td contenteditable="false">(軽)犯罪車両のインパウンド</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">インパウンド</td>
+                                <td contenteditable="false">3時間</td>
+                                <td contenteditable="false">150,000</td>
+                                <td contenteditable="false">(中)犯罪車両のインパウンド</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">インパウンド</td>
+                                <td contenteditable="false">7時間</td>
+                                <td contenteditable="false">250,000</td>
+                                <td contenteditable="false">(大)犯罪車両のインパウンド</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">インパウンド</td>
+                                <td contenteditable="false">0分</td>
+                                <td contenteditable="false">150,000</td>
+                                <td contenteditable="false">放置車両などのインパウンド</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">インパウンド</td>
+                                <td contenteditable="false">0分</td>
+                                <td contenteditable="false">50,000</td>
+                                <td contenteditable="false">事故など市民からの要請で行ったインパウンド</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">指名手配時間</td>
+                                <td contenteditable="false">30分</td>
+                                <td contenteditable="false">なし</td>
+                                <td contenteditable="false">軽強盗指名手配時間</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">指名手配時間</td>
+                                <td contenteditable="false">1時間</td>
+                                <td contenteditable="false">なし</td>
+                                <td contenteditable="false">中型強盗指名手配時間</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">指名手配時間</td>
+                                <td contenteditable="false">1時間</td>
+                                <td contenteditable="false">なし</td>
+                                <td contenteditable="false">大型強盗指名手配時間</td>
+                            </tr>
+                            <tr>
+                                <td contenteditable="false">指名手配時間</td>
+                                <td contenteditable="false">20分</td>
+                                <td contenteditable="false">なし</td>
+                                <td contenteditable="false">上記以外の非親告罪指名手配時間</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="rule-info">
+                        <strong>重要な注意事項（インパウンドについて）:</strong>
+                        <ul>
+                            <li>※犯罪者を個人医として助けに来た個人医に関しては、インパウンド時間は1時間です。</li>
+                            <li>ただし、個人医としてではなくただ犯罪をして捕まった場合は上記の表のとおりのインパウンド時間です。</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+
+
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Theme Switcher ---
+            const themeSwitcher = document.getElementById('theme-switcher');
+            const body = document.body;
+
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            body.setAttribute('data-theme', currentTheme);
+            themeSwitcher.textContent = currentTheme === 'light' ? '🌙' : '☀️';
+
+            themeSwitcher.addEventListener('click', () => {
+                const newTheme = body.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                body.setAttribute('data-theme', newTheme);
+                themeSwitcher.textContent = newTheme === 'light' ? '🌙' : '☀️';
+                localStorage.setItem('theme', newTheme);
+            });
+
+            // --- Accordion ---
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    header.classList.toggle('active');
+                    const content = header.nextElementSibling;
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        content.style.padding = '0 20px';
+                    } else {
+                        content.style.maxHeight = content.scrollHeight + 40 + "px";
+                        content.style.padding = '20px';
+                    }
+                });
+            });
+
+            // --- Table of Contents & Smooth Scroll & Active Link ---
+            const sections = document.querySelectorAll('.rule-section');
+            const navUl = document.querySelector('#table-of-contents ul');
+
+            sections.forEach(section => {
+                const title = section.querySelector('h2').textContent;
+                const id = section.id;
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.textContent = title;
+                a.href = `#${id}`;
+                li.appendChild(a);
+                navUl.appendChild(li);
+            });
+
+            const navLinks = document.querySelectorAll('nav a');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const id = entry.target.getAttribute('id');
+                    const navLink = document.querySelector(`nav li a[href="#${id}"]`);
+
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => link.classList.remove('active'));
+                        navLink.classList.add('active');
+                    }
+                });
+            }, {
+                rootMargin: "-30% 0px -70% 0px"
+            });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // --- Enhanced Search Functionality ---
+            const searchBox = document.getElementById('search-box');
+            const searchResults = document.getElementById('search-results');
+            let searchIndex = [];
+
+            // Build search index
+            const buildSearchIndex = () => {
+                const sections = document.querySelectorAll('section');
+                sections.forEach(section => {
+                    const h2Element = section.querySelector('h2');
+                    const sectionTitle = h2Element ? h2Element.textContent : '';
+                    const sectionId = section.id;
+
+                    // Index all text content in the section
+                    const textElements = section.querySelectorAll('p, li, h3, h4, td, div:not(.search-results-dropdown)');
+                    textElements.forEach(element => {
+                        const text = element.textContent.trim();
+                        if (text.length > 10) { // Only index meaningful content
+                            searchIndex.push({
+                                id: sectionId,
+                                title: sectionTitle,
+                                text: text,
+                                element: element
+                            });
+                        }
+                    });
+                });
+            };
+
+            // Create preview text with highlighted search term
+            const createPreview = (text, searchTerm, maxLength = 100) => {
+                const lowerText = text.toLowerCase();
+                const lowerTerm = searchTerm.toLowerCase();
+                const index = lowerText.indexOf(lowerTerm);
+
+                if (index === -1) return text.substring(0, maxLength) + '...';
+
+                const start = Math.max(0, index - 30);
+                const end = Math.min(text.length, index + searchTerm.length + 30);
+
+                let preview = text.substring(start, end);
+                if (start > 0) preview = '...' + preview;
+                if (end < text.length) preview = preview + '...';
+
+                // Highlight the search term
+                const regex = new RegExp(`(${searchTerm})`, 'gi');
+                preview = preview.replace(regex, '<span class="search-highlight">$1</span>');
+
+                return preview;
+            };
+
+            // Perform search and display results
+            const performSearch = () => {
+                const searchTerm = searchBox.value.trim();
+
+                if (searchTerm.length < 2) {
+                    searchResults.style.display = 'none';
+                    return;
+                }
+
+                const results = [];
+                const seenSections = new Set();
+
+                searchIndex.forEach(item => {
+                    const lowerText = item.text.toLowerCase();
+                    const lowerTerm = searchTerm.toLowerCase();
+
+                    if (lowerText.includes(lowerTerm)) {
+                        const sectionKey = `${item.id}-${item.title}`;
+                        if (!seenSections.has(sectionKey)) {
+                            seenSections.add(sectionKey);
+                            results.push({
+                                id: item.id,
+                                title: item.title,
+                                preview: createPreview(item.text, searchTerm),
+                                element: item.element
+                            });
+                        }
+                    }
+                });
+
+                displaySearchResults(results, searchTerm);
+            };
+
+            // Display search results in dropdown
+            const displaySearchResults = (results, searchTerm) => {
+                searchResults.innerHTML = '';
+
+                if (results.length === 0) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'no-search-results';
+                    noResults.textContent = '検索結果が見つかりませんでした';
+                    searchResults.appendChild(noResults);
+                } else {
+                    results.slice(0, 8).forEach(result => { // Limit to 8 results
+                        const item = document.createElement('div');
+                        item.className = 'search-result-item';
+
+                        const section = document.createElement('div');
+                        section.className = 'search-result-section';
+                        section.textContent = result.title;
+
+                        const preview = document.createElement('div');
+                        preview.className = 'search-result-preview';
+                        preview.innerHTML = result.preview;
+
+                        const context = document.createElement('div');
+                        context.className = 'search-result-context';
+                        context.textContent = `セクション: ${result.title}`;
+
+                        item.appendChild(section);
+                        item.appendChild(preview);
+                        item.appendChild(context);
+
+                        // Click handler to navigate to result
+                        item.addEventListener('click', () => {
+                            const targetSection = document.getElementById(result.id);
+                            if (targetSection) {
+                                targetSection.scrollIntoView({
+                                    behavior: 'smooth'
+                                });
+                                searchBox.value = '';
+                                searchResults.style.display = 'none';
+
+                                // Temporarily highlight the section
+                                targetSection.style.backgroundColor = 'rgba(255, 215, 0, 0.2)';
+                                setTimeout(() => {
+                                    targetSection.style.backgroundColor = '';
+                                }, 2000);
+                            }
+                        });
+
+                        searchResults.appendChild(item);
+                    });
+                }
+
+                searchResults.style.display = 'block';
+            };
+
+            const debounce = (func, delay) => {
+                let timeout;
+                return (...args) => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), delay);
+                };
+            };
+
+            // Keyboard navigation
+            let selectedIndex = -1;
+
+            const updateKeyboardSelection = () => {
+                const items = searchResults.querySelectorAll('.search-result-item');
+                items.forEach((item, index) => {
+                    item.classList.toggle('keyboard-selected', index === selectedIndex);
+                });
+            };
+
+            const selectResult = () => {
+                const items = searchResults.querySelectorAll('.search-result-item');
+                if (selectedIndex >= 0 && selectedIndex < items.length) {
+                    items[selectedIndex].click();
+                }
+            };
+
+            // Initialize search
+            buildSearchIndex();
+            searchBox.addEventListener('input', debounce(performSearch, 300));
+
+            // Keyboard navigation
+            searchBox.addEventListener('keydown', (e) => {
+                const items = searchResults.querySelectorAll('.search-result-item');
+
+                switch (e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                        updateKeyboardSelection();
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        selectedIndex = Math.max(selectedIndex - 1, -1);
+                        updateKeyboardSelection();
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        selectResult();
+                        break;
+                    case 'Escape':
+                        searchResults.style.display = 'none';
+                        selectedIndex = -1;
+                        break;
+                }
+            });
+
+            // Reset selection when search changes
+            searchBox.addEventListener('input', () => {
+                selectedIndex = -1;
+            });
+
+            // Hide search results when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-container')) {
+                    searchResults.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            });
+
+            // Show search results when focusing on search box
+            searchBox.addEventListener('focus', () => {
+                if (searchBox.value.trim().length >= 2) {
+                    performSearch();
+                }
+            });
+        });
+    </script>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal" hidden>
+        <div class="modal-content">
+            <h3>管理者ログイン</h3>
+            <div class="form-row">
+                <label for="login-id">ID</label>
+                <input type="text" id="login-id" placeholder="" />
+            </div>
+            <div class="form-row">
+                <label for="login-password">パスワード</label>
+                <input type="password" id="login-password" placeholder="" />
+            </div>
+            <div id="login-error" class="error-text" role="alert"></div>
+            <div class="modal-actions">
+                <button id="login-submit" class="btn btn-primary">ログイン</button>
+                <button data-close-modal class="btn btn-secondary">閉じる</button>
+            </div>
+        </div>
+        <div class="modal-backdrop" data-close-modal></div>
+    </div>
+
+    <!-- First Password Change Modal -->
+    <div id="password-modal" class="modal" hidden>
+        <div class="modal-content">
+            <h3>初回パスワード変更</h3>
+            <div class="form-row">
+                <label for="new-password">新しいパスワード</label>
+                <input type="password" id="new-password" />
+            </div>
+            <div class="form-row">
+                <label for="new-password-2">新しいパスワード（確認）</label>
+                <input type="password" id="new-password-2" />
+            </div>
+            <div id="password-error" class="error-text" role="alert"></div>
+            <div class="modal-actions">
+                <button id="password-save" class="btn btn-primary">変更</button>
+                <button data-close-modal class="btn btn-secondary">後で</button>
+            </div>
+        </div>
+        <div class="modal-backdrop" data-close-modal></div>
+    </div>
+
+    <!-- Tags Manager Modal -->
+    <div id="tags-modal" class="modal" hidden>
+        <div class="modal-content">
+            <h3>タグ管理</h3>
+            <div class="form-row">
+                <input type="text" id="tag-name" placeholder="タグ名（例：小型）" />
+                <input type="color" id="tag-color" value="#ff9900" />
+                <button id="add-tag" class="btn">追加</button>
+            </div>
+            <div id="tags-list" class="tags-list"></div>
+            <div class="modal-actions">
+                <button data-close-modal class="btn btn-secondary">閉じる</button>
+            </div>
+        </div>
+        <div class="modal-backdrop" data-close-modal></div>
+    </div>
+
+    <!-- Insert Table Modal -->
+    <div id="table-modal" class="modal" hidden>
+        <div class="modal-content">
+            <h3>表を挿入</h3>
+            <div class="form-row">
+                <label>列</label><input type="number" id="table-cols" min="1" value="3" />
+                <label>行</label><input type="number" id="table-rows" min="1" value="3" />
+                <label><input type="checkbox" id="table-header" checked /> ヘッダー行</label>
+            </div>
+            <div class="modal-actions">
+                <button id="confirm-insert-table" class="btn btn-primary">挿入</button>
+                <button data-close-modal class="btn btn-secondary">キャンセル</button>
+            </div>
+        </div>
+        <div class="modal-backdrop" data-close-modal></div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="export-modal" class="modal" hidden>
+        <div class="modal-content modal-lg">
+            <h3>エクスポート</h3>
+            <div class="export-options">
+                <label class="checkbox-wrap">
+                    <input type="checkbox" id="remove-changelog" checked>
+                    <span>更新履歴を削除する</span>
+                </label>
+            </div>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="html">HTML</button>
+                <button class="tab-btn" data-tab="css">CSS</button>
+                <button class="tab-btn" data-tab="js">JavaScript</button>
+            </div>
+            <div class="tab-panels">
+                <div class="tab-panel active" data-tab="html">
+                    <div class="copy-actions"><button data-copy-target="#export-html" class="btn btn-accent">コピー</button></div>
+                    <textarea id="export-html" spellcheck="false"></textarea>
+                </div>
+                <div class="tab-panel" data-tab="css">
+                    <div class="copy-actions"><button data-copy-target="#export-css" class="btn btn-accent">コピー</button></div>
+                    <textarea id="export-css" spellcheck="false"></textarea>
+                </div>
+                <div class="tab-panel" data-tab="js">
+                    <div class="copy-actions"><button data-copy-target="#export-js" class="btn btn-accent">コピー</button></div>
+                    <textarea id="export-js" spellcheck="false"></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button data-close-modal class="btn btn-secondary">閉じる</button>
+            </div>
+        </div>
+        <div class="modal-backdrop" data-close-modal></div>
+    </div>
+
+    <script src="./script3.js" data-asset="app-script" defer></script>
+</body>
+
+</html>
